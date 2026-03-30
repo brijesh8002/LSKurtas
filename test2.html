@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Optimized Story UI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f5f5f5
+    }
+
+    /* renamed container */
+    .zbxr-container {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding: 10px
+    }
+
+    .hightlight-card {
+      text-align: center;
+      cursor: pointer;
+      flex: 0 0 auto
+    }
+
+    .highlight-img img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 3px solid #fff;
+      outline: 2px solid #000;
+      object-fit: cover
+    }
+
+    /* modal */
+    .zbxr-story-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999
+    }
+
+    .zbxr-story-modal.active {
+      display: flex
+    }
+
+    .zbxr-story-box {
+      width: 100%;
+      max-width: 380px;
+      height: 90vh;
+      background: black;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      color: white
+    }
+
+    /* video fix */
+    .zbxr-story-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    /* top */
+    .zbxr-top {
+      position: absolute;
+      top: 0;
+      width: 96%;
+      padding: 8px;
+      z-index: 9999;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .zbxr-user {
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .zbxr-user img {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%
+    }
+
+    /* progress */
+    .zbxr-progress {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      display: flex;
+      gap: 3px;
+      padding: 4px;
+      z-index: 3
+    }
+
+    .zbxr-bar {
+      flex: 1;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.3)
+    }
+
+    .zbxr-bar.active {
+      background: white
+    }
+
+    /* nav */
+    .zbxr-nav {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      z-index: 3
+    }
+
+    .zbxr-left {
+      left: 0
+    }
+
+    .zbxr-right {
+      right: 0
+    }
+
+    /* bottom */
+    .zbxr-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      z-index: 9999;
+      gap: 8px;
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.9))
+    }
+
+    .zbxr-input {
+      width: 68%;
+      padding: 6px 10px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+      font-size: 13px
+    }
+
+    .zbxr-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .zbxr-actions i {
+      font-size: 18px;
+      cursor: pointer
+    }
+
+    .zbxr-close {
+      cursor: pointer;
+      font-size: 20px
+    }
+
+    @media(max-width:500px) {
+      .zbxr-story-box {
+        height: 100vh;
+        max-width: 100%;
+        border-radius: 0
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- highlights -->
+  <div class="zbxr-container">
+    <div class="hightlight-card" onclick="openStory(0)">
+      <div class="highlight-img"><img src="thumb1.jpg"></div>
+      <span>Store 0</span>
+    </div>
+    <div class="hightlight-card" onclick="openStory(1)">
+      <div class="highlight-img"><img src="thumb1.jpg"></div>
+      <span>Store 1</span>
+    </div>
+    <div class="hightlight-card" onclick="openStory(3)">
+      <div class="highlight-img"><img src="thumb1.jpg"></div>
+      <span>Store 3</span>
+    </div>
+    <div class="hightlight-card" onclick="openStory(4)">
+      <div class="highlight-img"><img src="thumb1.jpg"></div>
+      <span>Store 4</span>
+    </div>
+    <div class="hightlight-card" onclick="openStory(5)">
+      <div class="highlight-img"><img src="thumb1.jpg"></div>
+      <span>Store 5</span>
+    </div>
+  </div>
+
+  <!-- modal -->
+  <div class="zbxr-story-modal" id="storyModal">
+    <div class="zbxr-story-box">
+
+      <div class="zbxr-progress" id="progress"></div>
+
+      <div class="zbxr-top">
+        <div class="zbxr-user" onclick="closeStory()">
+          <img src="thumb1.jpg">
+          <span id="storyName">Store</span>
+        </div>
+        <i class="bi bi-x zbxr-close" onclick="closeStory()"></i>
+      </div>
+
+      <video id="storyVideo" class="zbxr-story-video" muted playsinline preload="metadata"></video>
+
+      <div class="zbxr-nav zbxr-left" onclick="prevStory()"></div>
+      <div class="zbxr-nav zbxr-right" onclick="nextStory()"></div>
+
+      <div class="zbxr-bottom">
+        <input type="text" class="zbxr-input" placeholder="Message...">
+        <div class="zbxr-actions">
+          <i class="bi bi-heart"></i>
+          <i class="bi bi-chat"></i>
+          <i class="bi bi-send"></i>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const stories = [
+      ["web/image/9346256-uhd_2160_3840_24fps.mp4"], // Store 1
+      ["web/image/5913483-hd_1080_1920_30fps.mp4"], // Store 2
+      ["web/image/video3.mp4"],                     // Store 3
+      ["web/image/video4.mp4"],                     // Store 4
+      ["web/image/video5.mp4"]                      // Store 5
+    ];
+
+    const names = [
+      "Store 1",
+      "Store 2",
+      "Store 3",
+      "Store 4",
+      "Store 5"
+    ];
+
+    let currentUser = 0, currentIndex = 0;
+    let video = document.getElementById('storyVideo');
+
+    function openStory(user) {
+      currentUser = user; currentIndex = 0;
+      document.getElementById('storyModal').classList.add('active');
+      loadStory();
+    }
+
+    function closeStory() { 
+      video.pause(); 
+      document.getElementById('storyModal').classList.remove('active') ;
+      
+    }
+
+    function loadStory() {
+      let src = stories[currentUser][currentIndex];
+      video.src = src;
+      video.load();
+      video.play().catch(() => { });
+      document.getElementById('storyName').innerText = names[currentUser];
+
+      let progress = document.getElementById('progress');
+      progress.innerHTML = '';
+
+      stories[currentUser].forEach((_, i) => {
+        let bar = document.createElement('div');
+        bar.className = 'zbxr-bar' + (i === currentIndex ? ' active' : '');
+        progress.appendChild(bar);
+      });
+    }
+
+    video.onended = () => nextStory();
+
+    function nextStory() {
+      // next video in same user
+      if (currentIndex < stories[currentUser].length - 1) {
+        currentIndex++;
+      }
+      // go to next user
+      else if (currentUser < stories.length - 1) {
+        currentUser++;
+        currentIndex = 0;
+      }
+      // end all stories
+      else {
+        closeStory();
+        return;
+      }
+
+      loadStory();
+    }
+
+    function prevStory() {
+      // previous video in same user
+      if (currentIndex > 0) {
+        currentIndex--;
+      }
+      // go to previous user
+      else if (currentUser > 0) {
+        currentUser--;
+        currentIndex = stories[currentUser].length - 1;
+      }
+
+      loadStory();
+    }
+  </script>
+
+</body>
+
+</html>
